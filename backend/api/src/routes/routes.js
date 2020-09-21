@@ -31,12 +31,14 @@ routes.post("/sign-up", async function(req, res) {
 
     db.query("INSERT INTO users SET ?", post, function(err, result) {
         if (err) {
+            res.status(500)
+            res.send("Failure")
             throw err
         }
     })
 
     res.status(200)
-    res.send()
+    res.send("Success")
 })
 
 routes.post("/sign-in", function(req, res) {
@@ -48,7 +50,7 @@ routes.post("/sign-in", function(req, res) {
     db.query("SELECT *  FROM `users` WHERE `email` = " + mysql.escape(post.email), async function(err, results) {
         if (err) {
             res.status(500)
-            res.send()
+            res.send("Failed")
             throw err
         }
 
@@ -56,11 +58,11 @@ routes.post("/sign-in", function(req, res) {
         
         for (let user of results) {
             if (await comparePassword(req.body.password, user.password)) {
-                return res.send("You are athenticated!")
+                return res.send("Success")
             }
         }
 
-        res.send("Authentication failed")
+        res.send("Failed")
     })   
 })
 
