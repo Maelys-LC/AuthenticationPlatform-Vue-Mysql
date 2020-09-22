@@ -31,21 +31,28 @@ export default {
     methods: {
         signUp: async function() {
             if(this.name && this.email && this.password) {
-                let result = await this.axios.post('http://localhost:8080/sign-up', {
-                    name: this.name,
-                    email: this.email,
-                    password: this.password
-                })
-               
-                if (result.data === "Success") {
-                    document.getElementById("success").style.display = "inline"
-                    document.getElementById("failure").style.display = "none"
-                    document.getElementById("incomplete").style.display = "none"
-                } else if (result.data === "Failure") {
+
+                try {
+                    let result = await this.axios.post('http://localhost:8080/sign-up', {
+                        name: this.name,
+                        email: this.email,
+                        password: this.password
+                    })
+
+                    this.$store.dispatch("ADD_TOKEN", result.data.token)
+                
+                    if (result.data.auth) {
+                        document.getElementById("success").style.display = "inline"
+                        document.getElementById("failure").style.display = "none"
+                        document.getElementById("incomplete").style.display = "none"
+                    } 
+                } catch (err) {
                     document.getElementById("failure").style.display = "inline"
                     document.getElementById("success").style.display = "none"
                     document.getElementById("incomplete").style.display = "none"
+                    
                 }
+               
             } else {
                 document.getElementById("incomplete").style.display = "inline"
                 document.getElementById("success").style.display = "none"

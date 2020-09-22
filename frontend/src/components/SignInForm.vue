@@ -26,16 +26,26 @@ export default {
     methods: {
         signIn: async function() {
             if(this.email && this.password) {
-                let result = await this.axios.post('http://localhost:8080/sign-in', {
-                    email: this.email,
-                    password: this.password
-                })
-                if (result.data === "Failed") {
+
+                try {
+                    let result = await this.axios.post('http://localhost:8080/sign-in', {
+                        email: this.email,
+                        password: this.password
+                    })
+
+                    this.$store.dispatch("ADD_TOKEN", result.data.token)
+
+                    if (result.data.auth) {
+                        document.getElementById("error").style.display = "none"
+                        this.$router.push("/dashboard")
+                    }
+
+                } catch {
                     document.getElementById("error").style.display = "inline"
-                } else if (result.data === "Success") {
-                    document.getElementById("error").style.display = "none"
-                    this.$router.push("/dashboard")
-                }
+                }               
+                
+            } else {
+                document.getElementById("error").style.display = "inline"
             }
             this.email = ""
             this.password = ""

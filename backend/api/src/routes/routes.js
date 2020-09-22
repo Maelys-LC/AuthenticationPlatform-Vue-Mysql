@@ -3,6 +3,9 @@ const routes = express.Router()
 const db = require("../database/db.js")
 const mysql = require("mysql2")
 const bcrypt = require("bcrypt")
+const jwt = require('jsonwebtoken');
+const bodyParser = require('body-parser');
+const config = require('../config/config.js')
 
 let getHashedPassword = (password) => {
     return new Promise(function(resolve){
@@ -22,6 +25,9 @@ let comparePassword = (passwordInput, passwordDB) => {
     })    
 }
 
+
+
+
 routes.post("/sign-up", async function(req, res) {
     let post = {
         name: req.body.name,
@@ -35,11 +41,24 @@ routes.post("/sign-up", async function(req, res) {
             res.send("Failure")
             throw err
         }
-    })
 
-    res.status(200)
-    res.send("Success")
+        db.query("SELECT * FROM `users` WHERE `email` =" +  mysql.escape(req.body.email), function(err, results) {
+            if (err) {
+                res.status(500)
+                res.send("Failure")
+                throw err
+            }
+    
+            let token = jwt.sign({id: results[0].id}, config.secret, {expiresIn: 86400})
+            res.status(200)
+            res.send({auth: true, token: token, user: results[0]})
+        })  
+    })      
 })
+
+
+
+
 
 routes.post("/sign-in", function(req, res) {
     let post = {
@@ -54,15 +73,16 @@ routes.post("/sign-in", function(req, res) {
             throw err
         }
 
-        res.status(200)
-        
-        for (let user of results) {
-            if (await comparePassword(req.body.password, user.password)) {
-                return res.send("Success")
-            }
-        }
+        let valid = await comparePassword(req.body.password, results[0].password)
 
-        res.send("Failed")
+        if (!valid) {
+            res.status(400)
+            return res.send("Failed")
+        } else if (valid) {
+            let token = jwt.sign({id: results[0].id}, config.secret, {expiresIn: 86400})
+            res.status(200)
+            return res.send({auth: true, token: token, user: results[0]})
+        }
     })   
 })
 
