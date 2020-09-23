@@ -1,8 +1,9 @@
 <template>
     <b-form id="form">
-        <p id="success">Registration successfull</p>
-        <p id="failure">Registration failed, please try again</p>
-        <p id="incomplete">Information incomplete</p>
+        <p id="success" v-if="status === 'success'">Registration successfull</p>
+        <p id="failure" v-else-if="status === 'failure'">Registration failed, please try again</p>
+        <p id="incomplete" v-else-if="status === 'incomplete'">Information incomplete</p>
+        <p id="exists" v-else-if="status === 'exists'">E-mail already registered</p>
         <br> <br>
         <b-form-group label="Name:" label-for="inputName">
             <b-form-input id="inputName" v-model="name" required placeholder="Enter your name"></b-form-input>
@@ -25,7 +26,8 @@ export default {
         return {
             name: "",
             email: "",
-            password: ""                
+            password: "",
+            status: ""              
         }
     },
     methods: {
@@ -42,21 +44,15 @@ export default {
                     this.$store.dispatch("ADD_TOKEN", result.data.token)
                 
                     if (result.data.auth) {
-                        document.getElementById("success").style.display = "inline"
-                        document.getElementById("failure").style.display = "none"
-                        document.getElementById("incomplete").style.display = "none"
-                    } 
+                        this.status = "success"
+                    } else if (result.data === "Exists") {
+                        this.status = "exists"
+                    }
                 } catch (err) {
-                    document.getElementById("failure").style.display = "inline"
-                    document.getElementById("success").style.display = "none"
-                    document.getElementById("incomplete").style.display = "none"
-                    
-                }
-               
+                    this.status = "failure"                    
+                }               
             } else {
-                document.getElementById("incomplete").style.display = "inline"
-                document.getElementById("success").style.display = "none"
-                document.getElementById("failure").style.display = "none"
+                this.status = "incomplete"
             }
             this.name = ""
             this.email = ""
@@ -71,15 +67,9 @@ export default {
         text-align: left;
     }
     #success {
-        display: none;
         color: green;
     }
-    #failure {
-        display: none;
+    #failure, #incomplete, #exists {
         color: red;
-    }
-    #incomplete {
-        display: none;
-        color: red;
-    }
+    }   
 </style>

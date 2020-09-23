@@ -35,25 +35,38 @@ routes.post("/sign-up", async function(req, res) {
         password: await getHashedPassword(req.body.password)
     }    
 
-    db.query("INSERT INTO users SET ?", post, function(err, result) {
+    db.query("SELECT * FROM `users` WHERE `email` =" +  mysql.escape(req.body.email), function(err, results) {
         if (err) {
             res.status(500)
             res.send("Failure")
             throw err
         }
 
-        db.query("SELECT * FROM `users` WHERE `email` =" +  mysql.escape(req.body.email), function(err, results) {
-            if (err) {
-                res.status(500)
-                res.send("Failure")
-                throw err
-            }
-    
-            let token = jwt.sign({id: results[0].id}, config.secret, {expiresIn: 86400})
+        if (!results.length) {
+            db.query("INSERT INTO users SET ?", post, function(err, result) {
+                if (err) {
+                    res.status(500)
+                    res.send("Failure")
+                    throw err
+                }
+        
+                db.query("SELECT * FROM `users` WHERE `email` =" +  mysql.escape(req.body.email), function(err, results) {
+                    if (err) {
+                        res.status(500)
+                        res.send("Failure")
+                        throw err
+                    }
+            
+                    let token = jwt.sign({id: results[0].id}, config.secret, {expiresIn: 86400})
+                    res.status(200)
+                    res.send({auth: true, token: token, user: results[0]})
+                })  
+            }) 
+        } else if (results.length) {
             res.status(200)
-            res.send({auth: true, token: token, user: results[0]})
-        })  
-    })      
+            res.send("Exists")
+        }
+    })         
 })
 
 
@@ -73,16 +86,23 @@ routes.post("/sign-in", function(req, res) {
             throw err
         }
 
-        let valid = await comparePassword(req.body.password, results[0].password)
+        if (results.length) {
+            let valid = await comparePassword(req.body.password, results[0].password)
 
-        if (!valid) {
-            res.status(400)
-            return res.send("Failed")
-        } else if (valid) {
-            let token = jwt.sign({id: results[0].id}, config.secret, {expiresIn: 86400})
-            res.status(200)
-            return res.send({auth: true, token: token, user: results[0]})
+            if (!valid) {
+                res.status(500)
+                return res.send("Failed")
+            } else if (valid) {
+                let token = jwt.sign({id: results[0].id}, config.secret, {expiresIn: 86400})
+                res.status(200)
+                return res.send({auth: true, token: token, user: results[0]})
+            }
+        } else {
+            res.status(500)
+            res.send("Failed")
         }
+
+        
     })   
 })
 

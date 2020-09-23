@@ -1,7 +1,8 @@
 <template>
     <div id="form">
         <b-form>
-            <p id="error">Error: authentication failed</p>
+            <p id="error" v-if="status === 'error'">Error: authentication failed</p>
+            <p id="incomplete" v-else-if="status === 'incomplete'">Information incomplete</p>
             <b-form-group label="Email:" label-for="inputEmail">
                 <b-form-input id="inputEmail" v-model="email" required placeholder="Enter your email"></b-form-input>
             </b-form-group>
@@ -20,7 +21,8 @@ export default {
     data: function() {
         return {
             email: "",
-            password: ""                
+            password: "",
+            status: ""               
         }
     },
     methods: {
@@ -36,16 +38,15 @@ export default {
                     this.$store.dispatch("ADD_TOKEN", result.data.token)
 
                     if (result.data.auth) {
-                        document.getElementById("error").style.display = "none"
                         this.$router.push("/dashboard")
                     }
 
                 } catch {
-                    document.getElementById("error").style.display = "inline"
+                    this.status = "error"
                 }               
                 
             } else {
-                document.getElementById("error").style.display = "inline"
+                this.status = "incomplete"
             }
             this.email = ""
             this.password = ""
@@ -58,8 +59,7 @@ export default {
     #form {
         text-align: left;
     }
-    #error {
-        display: none;
+    #error, #incomplete {       
         color: red;
     }
 </style>
