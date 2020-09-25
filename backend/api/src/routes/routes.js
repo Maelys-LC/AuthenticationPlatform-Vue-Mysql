@@ -106,6 +106,20 @@ routes.post("/sign-in", function(req, res) {
     })   
 })
 
+
+routes.delete("/delete", function(req, res) {
+    db.query("DELETE FROM `users` WHERE `email` =" + mysql.escape(req.body.email), function(err, result){
+        if(err) {
+            res.status(500)
+            res.send("Failure")
+            throw err
+        } else {
+            res.status(200)
+            res.send("Success")
+        }
+    })
+})
+
 module.exports = routes
 
 
