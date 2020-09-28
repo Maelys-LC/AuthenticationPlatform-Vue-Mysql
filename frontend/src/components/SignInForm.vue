@@ -3,15 +3,15 @@
         <b-form>
             <p id="error" v-if="status === 'error'">Error: authentication failed</p>
             <!-- <p id="incomplete" v-else-if="status === 'incomplete'">Information incomplete</p> -->
-            <b-form-group label="Email:" label-for="inputEmail">
-                <b-form-input id="inputEmail" v-model="email" required placeholder="Enter your email" :class="!$v.email.email ? 'inputError':''"></b-form-input>
+            <b-form-group label="Email:" label-for="inputMail">
+                <b-form-input id="inputMail" v-model="email" required placeholder="Enter your email" :class="!$v.email.email ? 'inputError':''"></b-form-input>
             </b-form-group>
             <div class="required" v-if="!$v.email.required">Field is required</div>
             <div class="error" v-if="!$v.email.email">Invalid email</div>
 
             <br><br>
-            <b-form-group label="Password:" label-for="inputPassword">
-                <b-form-input id="inputPassword" type="password" v-model="password" required placeholder="Enter your password" :class="!$v.password.minLength ? 'inputError':''"></b-form-input>
+            <b-form-group label="Password:" label-for="inputPwd">
+                <b-form-input id="inputPwd" type="password" v-model="password" required placeholder="Enter your password" :class="!$v.password.minLength ? 'inputError':''"></b-form-input>
             </b-form-group>
              <div class="required" v-if="!$v.password.required">Field is required</div>
             <div class="error" v-if="!$v.password.minLength">Password must have at least {{$v.password.$params.minLength.min}} characters.</div>
@@ -25,6 +25,7 @@
 
 <script>
 import { required, minLength, email} from 'vuelidate/lib/validators'
+import jwt_decode from "jwt-decode";
 
 export default {
     name: "SignInForm",
@@ -49,6 +50,7 @@ export default {
         signIn: async function() {
             if(this.email && this.password) {
                 this.$v.$touch()
+
                 if (this.$v.$invalid) {
                     this.status= 'error'
                 } else {
@@ -57,8 +59,13 @@ export default {
                         email: this.email,
                         password: this.password
                     })
-
-                    this.$store.dispatch("ADD_TOKEN", result.data.token)
+                    let token = result.data.token
+                    let decoded = jwt_decode(token);
+                    
+                    
+                    this.$store.dispatch("ADD_TOKEN", token)
+                    this.$store.dispatch("CONNECT_USER", decoded)
+                    
 
                     if (result.data.auth) {
                         this.$router.push("/dashboard")

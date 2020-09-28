@@ -33,6 +33,7 @@
 
 <script>
 import { required, minLength, email} from 'vuelidate/lib/validators'
+import jwt_decode from "jwt-decode";
 
 export default {
     name: "SignUpForm",
@@ -72,9 +73,12 @@ export default {
                             email: this.email,
                             password: this.password
                         })
-
-                        this.$store.dispatch("ADD_TOKEN", result.data.token)
-                    
+                        let token = result.data.token
+                        let decoded = jwt_decode(token);
+                        
+                        this.$store.dispatch("ADD_TOKEN", token)
+                        this.$store.dispatch("CONNECT_USER", decoded)
+                                            
                         if (result.data.auth) {
                             this.status = "success"
                             this.$router.push("/dashboard")

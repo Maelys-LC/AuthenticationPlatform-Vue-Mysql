@@ -57,7 +57,7 @@ routes.post("/sign-up", async function(req, res) {
                         throw err
                     }
             
-                    let token = jwt.sign({id: results[0].id}, config.secret, {expiresIn: 86400})
+                    let token = jwt.sign({id: results[0].id, name: results[0].name}, config.secret, {expiresIn: 86400})
                     res.status(200)
                     res.send({auth: true, token: token, user: results[0]})
                 })  
@@ -93,7 +93,7 @@ routes.post("/sign-in", function(req, res) {
                 res.status(500)
                 return res.send("Failed")
             } else if (valid) {
-                let token = jwt.sign({id: results[0].id}, config.secret, {expiresIn: 86400})
+                let token = jwt.sign({id: results[0].id, name: results[0].name}, config.secret, {expiresIn: 86400})
                 res.status(200)
                 return res.send({auth: true, token: token, user: results[0]})
             }
