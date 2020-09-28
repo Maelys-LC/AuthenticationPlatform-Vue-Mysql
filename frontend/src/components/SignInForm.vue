@@ -2,13 +2,21 @@
     <div id="form">
         <b-form>
             <p id="error" v-if="status === 'error'">Error: authentication failed</p>
-            <p id="incomplete" v-else-if="status === 'incomplete'">Information incomplete</p>
+            <!-- <p id="incomplete" v-else-if="status === 'incomplete'">Information incomplete</p> -->
             <b-form-group label="Email:" label-for="inputEmail">
-                <b-form-input id="inputEmail" v-model="email" required placeholder="Enter your email"></b-form-input>
+                <b-form-input id="inputEmail" v-model="email" required placeholder="Enter your email" :class="!$v.email.email ? 'inputError':''"></b-form-input>
             </b-form-group>
+            <div class="required" v-if="!$v.email.required">Field is required</div>
+            <div class="error" v-if="!$v.email.email">Invalid email</div>
+
+            <br><br>
             <b-form-group label="Password:" label-for="inputPassword">
-                <b-form-input id="inputPassword" v-model="password" required placeholder="Enter your password"></b-form-input>
+                <b-form-input id="inputPassword" type="password" v-model="password" required placeholder="Enter your password" :class="!$v.password.minLength ? 'inputError':''"></b-form-input>
             </b-form-group>
+             <div class="required" v-if="!$v.password.required">Field is required</div>
+            <div class="error" v-if="!$v.password.minLength">Password must have at least {{$v.password.$params.minLength.min}} characters.</div>
+
+            <br><br>
 
             <b-button variant="success" @click="signIn">Sign-In</b-button>
         </b-form>
@@ -16,6 +24,8 @@
 </template>
 
 <script>
+import { required, minLength, email} from 'vuelidate/lib/validators'
+
 export default {
     name: "SignInForm",
     data: function() {
@@ -25,11 +35,24 @@ export default {
             status: ""               
         }
     },
+    validations: {
+        email: {
+            required,
+            email
+        },
+        password: {
+            required,
+            minLength: minLength(8)
+        }
+    },  
     methods: {
         signIn: async function() {
             if(this.email && this.password) {
-
-                try {
+                this.$v.$touch()
+                if (this.$v.$invalid) {
+                    this.status= 'error'
+                } else {
+                    try {
                     let result = await this.axios.post('http://localhost:8080/sign-in', {
                         email: this.email,
                         password: this.password
@@ -41,13 +64,11 @@ export default {
                         this.$router.push("/dashboard")
                     }
 
-                } catch {
-                    this.status = "error"
-                }               
-                
-            } else {
-                this.status = "incomplete"
-            }
+                    } catch {
+                        this.status = "error"
+                    }                
+                } 
+            } 
             this.email = ""
             this.password = ""
         }
@@ -61,5 +82,15 @@ export default {
     }
     #error, #incomplete {       
         color: red;
+    }
+    .required {
+        font-style: italic;
+        color: gray;
+    }
+    .error {
+        color: red;
+    }
+    .inputError {
+        border: 2px solid red;
     }
 </style>
