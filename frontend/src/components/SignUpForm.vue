@@ -4,6 +4,7 @@
         <p id="failure" v-else-if="status === 'failure'">Registration failed, please try again</p>
         <!-- <p id="incomplete" v-else-if="status === 'incomplete'">Information incomplete</p> -->
         <p id="exists" v-else-if="status === 'exists'">E-mail already registered</p>
+        <p id="exists" v-else-if="status === 'name exists'">Name already taken</p>
         <br> <br>
 
         <b-form-group label="Name:" label-for="inputName">
@@ -48,7 +49,7 @@ export default {
     validations: {
         name: {
             required,
-            minLength: minLength(4)
+            minLength: minLength(3)
         },
         email: {
             required,
@@ -73,20 +74,27 @@ export default {
                             email: this.email,
                             password: this.password
                         })
-                        let token = result.data.token
-                        let decoded = jwt_decode(token);
-                        
-                        this.$store.dispatch("ADD_TOKEN", token)
-                        this.$store.dispatch("CONNECT_USER", decoded)
-                                            
+
                         if (result.data.auth) {
                             this.status = "success"
-                            this.$router.push("/dashboard")
+                            let token = result.data.token
+                            let decoded = jwt_decode(token)  
+                                                
+                            this.$store.dispatch("ADD_TOKEN", token)
+                            this.$store.dispatch("CONNECT_USER", decoded) 
+                            this.$router.push("/dashboard")  
                         } else if (result.data === "Exists") {
                             this.status = "exists"
+                        } else if (result.data === "Name exists") {
+                            this.status = "name exists"
                         }
+
+                        
+                                            
+                        
                     } catch (err) {
-                        this.status = "failure"                    
+                        this.status = "failure" 
+                        console.log(err);                   
                     }               
                 }  
             }

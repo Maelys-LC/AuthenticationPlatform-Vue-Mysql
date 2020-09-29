@@ -3,13 +3,14 @@
         <ConnectedHeader/>
         <b-jumbotron id="dashboard">
         
-            <template v-slot:header>Dashboard</template>
+            <template v-slot:header>Welcome!</template>
 
-            <template v-slot:lead>
-            Just an ugly dashboard :(
-            </template>
+            
 
-            <hr class="my-4">  
+            <b-tabs content-class="mt-3">
+                <b-tab title="List-contacts"><ContactsList/></b-tab>
+                <b-tab title="Add-contact"><AddContactForm/></b-tab>               
+            </b-tabs> 
 
             
 
@@ -33,7 +34,10 @@
 </template>
 
 <script>
+import ContactsList from "./ContactsList"
+import AddContactForm from "./AddContactForm"
 import ConnectedHeader from "./ConnectedHeader"
+
 export default {
     name: "Dashboard",
     // data: function() {
@@ -42,7 +46,9 @@ export default {
     //     }
     // },
     components: {
-        ConnectedHeader
+        ConnectedHeader,
+        ContactsList,
+        AddContactForm
     },
     methods: {
         

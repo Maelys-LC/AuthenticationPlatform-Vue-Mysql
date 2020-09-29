@@ -55,21 +55,25 @@ export default {
                     this.status= 'error'
                 } else {
                     try {
-                    let result = await this.axios.post('http://localhost:8080/sign-in', {
-                        email: this.email,
-                        password: this.password
-                    })
-                    let token = result.data.token
-                    let decoded = jwt_decode(token);
-                    
-                    
-                    this.$store.dispatch("ADD_TOKEN", token)
-                    this.$store.dispatch("CONNECT_USER", decoded)
-                    
+                        let result = await this.axios.post('http://localhost:8080/sign-in', {
+                            email: this.email,
+                            password: this.password
+                        })
+                        
 
-                    if (result.data.auth) {
-                        this.$router.push("/dashboard")
-                    }
+                        if (result.data.auth) {
+                            let token = result.data.token
+                            let decoded = jwt_decode(token);                    
+                            
+                            this.$store.dispatch("ADD_TOKEN", token)
+                            this.$store.dispatch("CONNECT_USER", decoded)
+                        
+                            let contacts = await this.axios.get("http://localhost:8080/get-contacts/" + this.$store.state.id, {headers: {token: this.$store.state.token}})
+                        
+                            this.$store.dispatch("add_contacts", contacts.data)
+                            this.$router.push("/dashboard")
+
+                        }
 
                     } catch {
                         this.status = "error"

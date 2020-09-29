@@ -25,7 +25,21 @@ let comparePassword = (passwordInput, passwordDB) => {
     })    
 }
 
+routes.use("/sign-up", function(req, res, next) {
+    db.query("SELECT * FROM `users` WHERE `name` =" + mysql.escape(req.body.name), function(err, results) {
+        if (err) {
+            res.status(500)
+            res.send("Failure")
+        }
 
+        if (!results.length) {
+            next()
+        } else {
+            res.status(200)
+            res.send("Name exists")
+        }
+    })
+})
 
 
 routes.post("/sign-up", async function(req, res) {
@@ -74,12 +88,7 @@ routes.post("/sign-up", async function(req, res) {
 
 
 routes.post("/sign-in", function(req, res) {
-    let post = {
-        email: req.body.email,
-        password: req.body.password
-    }
-
-    db.query("SELECT *  FROM `users` WHERE `email` = " + mysql.escape(post.email), async function(err, results) {
+    db.query("SELECT *  FROM `users` WHERE `email` = " + mysql.escape(req.body.email), async function(err, results) {
         if (err) {
             res.status(500)
             res.send("Failed")
@@ -107,8 +116,8 @@ routes.post("/sign-in", function(req, res) {
 })
 
 
-routes.delete("/delete", function(req, res) {
-    db.query("DELETE FROM `users` WHERE `email` =" + mysql.escape(req.body.email), function(err, result){
+routes.delete("/delete/:email", function(req, res) {
+    db.query("DELETE FROM `users` WHERE `email` =" + mysql.escape(req.params.email), function(err, result){
         if(err) {
             res.status(500)
             res.send("Failure")
@@ -120,6 +129,64 @@ routes.delete("/delete", function(req, res) {
     })
 })
 
+
+routes.use("/add-new-contact", function(req, res, next){
+    let verified = jwt.verify(req.headers.token, config.secret)
+    
+    if(req.body.user_affiliate === verified.id && Date.now()/1000 <= verified.exp) {
+        next()
+    } else {
+        res.status(403)
+        res.send()
+    }
+})
+
+ 
+
+routes.post("/add-new-contact", function(req, res) {
+    let post = {
+        name: req.body.name,
+        email: req.body.email,
+        user_affiliate: req.body.user_affiliate
+    }
+    db.query("CREATE TABLE IF NOT EXISTS `contacts` (id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, name varchar(255) NOT NULL, email varchar(255) NOT NULL, user_affiliate varchar(255) NOT NULL)")
+    db.query("INSERT INTO contacts SET ?", post, function(err, results) {
+        if (err) {
+            res.status(500)
+            res.send("Failure")
+            throw err
+        } else {
+            res.status(200)
+            res.send("Success")
+        }
+    })
+    
+})
+
+
+routes.use("/get-contacts/:id", function(req, res, next) {
+    let verified = jwt.verify(req.headers.token, config.secret)
+
+    if(req.params.id == verified.id && Date.now()/1000 <= verified.exp) {
+        next()
+    } else {
+        res.status(403)
+        res.send()
+    }
+})   
+
+routes.get("/get-contacts/:id", function(req, res) {
+    db.query("SELECT * FROM `contacts` WHERE `user_affiliate` =" + mysql.escape(req.params.id), function(err, results) {
+        if (err) {
+            res.status(500)
+            res.send("Failure")
+            throw err
+        } else {
+            res.status(200)
+            res.send(results)
+        }
+    })
+})
 module.exports = routes
 
 

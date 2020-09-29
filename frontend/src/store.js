@@ -11,7 +11,8 @@ export default new Vuex.Store ({
     state: {
         token: null,
         name: null,
-        id: null
+        id: null,
+        contacts: []
     },
     mutations: {
         ADD_TOKEN(state, token) {
@@ -25,6 +26,13 @@ export default new Vuex.Store ({
             state.token = null
             state.name = null
             state.id = null
+            state.contacts = []
+        },
+        ADD_CONTACTS(state, contacts){
+            state.contacts = contacts
+        },
+        NEW_CONTACT(state, contact) {
+            state.contacts.push(contact)
         }
     },
     actions: {
@@ -36,6 +44,12 @@ export default new Vuex.Store ({
         },
         DELETE_TOKEN(context) {
             context.commit("DELETE_TOKEN")
+        },
+        add_contacts(context, contacts) {
+            context.commit("ADD_CONTACTS", contacts)
+        },
+        new_contact(context, contact) {
+            context.commit("NEW_CONTACT", contact)
         }
     },
     plugins: [createPersistedState()],
