@@ -25,7 +25,9 @@
 
 <script>
 import { required, minLength, email} from 'vuelidate/lib/validators'
-import jwt_decode from "jwt-decode";
+// import jwt_decode from "jwt-decode";
+import jwt from 'jsonwebtoken'
+
 
 export default {
     name: "SignInForm",
@@ -63,7 +65,7 @@ export default {
 
                         if (result.data.auth) {
                             let token = result.data.token
-                            let decoded = jwt_decode(token);                    
+                            let decoded = jwt.verify(token, 'limeisbestdriver')                   
                             
                             this.$store.dispatch("ADD_TOKEN", token)
                             this.$store.dispatch("CONNECT_USER", decoded)
