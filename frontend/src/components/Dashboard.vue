@@ -10,22 +10,11 @@
             <b-tabs content-class="mt-3">
                 <b-tab title="List-contacts"><ContactsList/></b-tab>
                 <b-tab title="Add-contact"><AddContactForm/></b-tab>               
-            </b-tabs> 
+            </b-tabs>  
 
-            
 
-            <!-- <b-form> -->
-                <!-- <p id="error" v-if="status === 'error'">Error: authentication failed</p>
-                <p id="incomplete" v-else-if="status === 'incomplete'">Information incomplete</p> -->
-                <!-- <b-form-group label="Email:" label-for="inputEmail"> -->
-                    <!-- <b-form-input id="inputEmail" v-model="email" required placeholder="Enter your email"></b-form-input> -->
-                <!-- </b-form-group> -->
-                <!-- <b-form-group label="Password:" label-for="inputPassword">
-                    <b-form-input id="inputPassword" v-model="password" required placeholder="Enter your password"></b-form-input>
-                </b-form-group> -->
-
-                <!-- <b-button variant="danger" @click="deleteAccount">Delete Account</b-button>    -->
-            <!-- </b-form> -->
+            <b-button variant="danger" @click="deleteAccount">Delete account</b-button>
+            <p v-if="status === 'failure'">Something went wrong, please try again</p>       
             
 
         </b-jumbotron> 
@@ -40,21 +29,27 @@ import ConnectedHeader from "./ConnectedHeader"
 
 export default {
     name: "Dashboard",
-    // data: function() {
-    //     return {
-    //         email: null
-    //     }
-    // },
     components: {
         ConnectedHeader,
         ContactsList,
         AddContactForm
     },
+    data: function() {
+        return{
+            status: null
+        }
+    },
     methods: {
-        
-        // deleteAccount: function() {
-        //     this.axios.delete("http://localhost:8080/delete", {});
-        // }
+        deleteAccount: async function() {
+            try {
+                await this.axios.delete('http://localhost:8080/deleteAllContacts/' + this.$store.state.id, {headers: {token: this.$store.state.token}})
+                await this.axios.delete('http://localhost:8080/delete/' + this.$store.state.id, {headers: {token: this.$store.state.token}})
+                this.$router.push("/")
+            } catch (err) {
+                this.status = 'failure'
+                console.log(err);
+            }
+        }
     }
 }
 </script>

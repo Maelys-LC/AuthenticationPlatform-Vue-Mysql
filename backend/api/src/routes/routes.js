@@ -115,9 +115,19 @@ routes.post("/sign-in", function(req, res) {
     })   
 })
 
+routes.use("/delete/:id", function(req, res, next) {
+    let verified = jwt.verify(req.headers.token, config.secret)
 
-routes.delete("/delete/:email", function(req, res) {
-    db.query("DELETE FROM `users` WHERE `email` =" + mysql.escape(req.params.email), function(err, result){
+    if(req.params.id == verified.id && Date.now()/1000 <= verified.exp) {
+        next()
+    } else {
+        res.status(403)
+        res.send()
+    }
+})   
+
+routes.delete("/delete/:id", function(req, res) {
+    db.query("DELETE FROM `users` WHERE `id` =" + mysql.escape(req.params.id), function(err, result){
         if(err) {
             res.status(500)
             res.send("Failure")
@@ -128,6 +138,9 @@ routes.delete("/delete/:email", function(req, res) {
         }
     })
 })
+
+
+
 
 
 routes.use("/add-new-contact", function(req, res, next){
@@ -176,7 +189,7 @@ routes.use("/get-contacts/:id", function(req, res, next) {
 })   
 
 routes.get("/get-contacts/:id", function(req, res) {
-    db.query("SELECT contacts.name, contacts.email, contacts.id FROM `contacts` INNER JOIN `users` ON contacts.user_affiliate = users.id WHERE `user_affiliate` =" + mysql.escape(req.params.id), function(err, results) {
+    db.query("SELECT contacts.name, contacts.email, contacts.id, contacts.user_affiliate FROM `contacts` INNER JOIN `users` ON contacts.user_affiliate = users.id WHERE `user_affiliate` =" + mysql.escape(req.params.id), function(err, results) {
         if (err) {
             res.status(500)
             res.send("Failure")
@@ -187,6 +200,59 @@ routes.get("/get-contacts/:id", function(req, res) {
         }
     })
 })
+
+
+
+routes.use("/deletingSingleContact", function(req, res, next){
+    let verified = jwt.verify(req.headers.token, config.secret)
+    
+    if(req.body.user_affiliate === verified.id && Date.now()/1000 <= verified.exp) {
+        next()
+    } else {
+        res.status(403)
+        res.send()
+    }
+})
+
+routes.post("/deleteSingleContact", function(req, res) {
+    db.query(`DELETE FROM contacts WHERE name = ${mysql.escape(req.body.name)} AND email = ${mysql.escape(req.body.email)} AND user_affiliate = ${mysql.escape(req.body.user_affiliate)}` , function(err, result) {
+        if (err) {
+            res.status(500)
+            res.send("Failure")
+            throw err
+        } else {
+            res.status(200)
+            res.send("Contact deleted successfully")
+        }
+    })
+})
+
+routes.use("/deleteAllContacts/:id", function(req, res, next) {
+    let verified = jwt.verify(req.headers.token, config.secret)
+
+    if(req.params.id == verified.id && Date.now()/1000 <= verified.exp) {
+        next()
+    } else {
+        res.status(403)
+        res.send()
+    }
+})
+
+routes.delete("/deleteAllContacts/:id", function(req, res) {
+    db.query(`DELETE FROM contacts WHERE user_affiliate = ${mysql.escape(req.params.id)}`, function(err, result) {
+        if (err) {
+            res.status(500)
+            res.send("Failure")
+            console.log("test");
+            throw err
+        } else {
+            res.status(200)
+            res.send("Contacts deleted successfully")
+        }
+    })
+})
+
+
 module.exports = routes
 
 

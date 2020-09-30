@@ -33,6 +33,16 @@ export default new Vuex.Store ({
         },
         NEW_CONTACT(state, contact) {
             state.contacts.push(contact)
+        },
+        DELETE_SINGLE_CONTACT(state, contact) {
+            for (let i=0; i < state.contacts.length; i++) {
+                if (state.contacts[i].name === contact.name && state.contacts[i].email === contact.email && state.contacts[i].user_affiliate === contact.user_affiliate) {
+                    state.contacts.splice(i, 1)
+                }
+            }
+        },
+        DELETE_ALL_CONTACTS(state) {
+            state.contacts = []
         }
     },
     actions: {
@@ -50,6 +60,12 @@ export default new Vuex.Store ({
         },
         new_contact(context, contact) {
             context.commit("NEW_CONTACT", contact)
+        },
+        deleteSingleContact(context, contact) {
+            context.commit("DELETE_SINGLE_CONTACT", contact)
+        },
+        deleteAllContacts(context) {
+            context.commit("DELETE_ALL_CONTACTS")
         }
     },
     plugins: [createPersistedState()],
