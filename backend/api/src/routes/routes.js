@@ -176,7 +176,7 @@ routes.use("/get-contacts/:id", function(req, res, next) {
 })   
 
 routes.get("/get-contacts/:id", function(req, res) {
-    db.query("SELECT * FROM `contacts` WHERE `user_affiliate` =" + mysql.escape(req.params.id), function(err, results) {
+    db.query("SELECT contacts.name, contacts.email, contacts.id FROM `contacts` INNER JOIN `users` ON contacts.user_affiliate = users.id WHERE `user_affiliate` =" + mysql.escape(req.params.id), function(err, results) {
         if (err) {
             res.status(500)
             res.send("Failure")
