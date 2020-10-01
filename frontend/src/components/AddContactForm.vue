@@ -1,19 +1,23 @@
 <template>
-    <b-form>
+    <b-form id="form">
         <p id="success" v-if="status === 'success'">Registration successfull</p>
         <p id="failure" v-else-if="status === 'failure'">Registration failed, please try again</p>
 
-        <b-form-group labem="Name:" label-for="inputName">
-            <b-form-input id="inputName" v-model="name" placeholder="Enter the name of your contact" :class="!$v.name.minLength ? 'inputError':''"></b-form-input>
+        <b-form-group label="Name:" label-for="inputName">
+            <b-form-input id="inputName" v-model="name" placeholder="Enter the name of your contact" @input="$v.name.$touch()" :class="{ inputError: $v.name.$error == true }"></b-form-input>
         </b-form-group>
-        <div class="required" v-if="!$v.name.required">Field is required</div>
-        <div class="error" v-if="!$v.name.minLength">Name must have at least {{$v.name.$params.minLength.min}} letters.</div>
+        <div v-if="$v.name.$dirty">
+            <p class="error" v-if="!$v.name.required">Field is required</p>
+            <p class="error" v-if="!$v.name.minLength">Name must have at least {{$v.name.$params.minLength.min}} letters.</p>
+        </div>
         
         <b-form-group label="Email:" label-for="inputMail">
-            <b-form-input id="inputMail" v-model="email" placeholder="Enter the email of your contact" :class="!$v.email.email ? 'inputError':''"></b-form-input>
+            <b-form-input id="inputMail" v-model="email" placeholder="Enter the email of your contact" @input="$v.email.$touch()" :class="{ inputError: $v.email.$error == true }"></b-form-input>
         </b-form-group>
-        <div class="required" v-if="!$v.email.required">Field is required</div>
-        <div class="error" v-if="!$v.email.email">Invalid email</div>
+        <div v-if="$v.email.$dirty">
+            <p class="error" v-if="!$v.email.required">Field is required</p>
+            <p class="error" v-if="!$v.email.email">Invalid email</p>
+        </div>
 
         
 
@@ -74,13 +78,32 @@ export default {
                     }
                 }
             }
-            this.name = ""
-            this.email = ""
+            this.resetDatas()
+        },
+        resetDatas() {      
+            this.name = "";
+            this.email = "";
+            this.$v.$reset();
         }
     }
 }
 </script>
 
-<style>
-
+<style scoped>
+    #form {
+        text-align: left;
+    }
+    #success {
+        color: green;
+    }
+    #failure {
+        color: red;
+    }   
+    .error {
+        color: red;
+    }
+    .inputError {
+        border: 2px solid red !important;
+    }
+    
 </style>

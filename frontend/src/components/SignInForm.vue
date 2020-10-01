@@ -2,19 +2,24 @@
     <div id="form">
         <b-form>
             <p id="error" v-if="status === 'error'">Error: authentication failed</p>
-            <!-- <p id="incomplete" v-else-if="status === 'incomplete'">Information incomplete</p> -->
+            
             <b-form-group label="Email:" label-for="inputMail">
-                <b-form-input id="inputMail" v-model="email" required placeholder="Enter your email" :class="!$v.email.email ? 'inputError':''"></b-form-input>
+                <b-form-input id="inputMail" v-model="email" required placeholder="Enter your email" @input="$v.email.$touch()" :class="{ inputError: $v.email.$error == true }"></b-form-input>
             </b-form-group>
-            <div class="required" v-if="!$v.email.required">Field is required</div>
-            <div class="error" v-if="!$v.email.email">Invalid email</div>
+            <div v-if="$v.email.$dirty">
+                <p class="error" v-if="!$v.email.required">Field is required</p>
+                <p class="error" v-if="!$v.email.email">Invalid email</p>
+            </div>
+       
 
             <br><br>
             <b-form-group label="Password:" label-for="inputPwd">
-                <b-form-input id="inputPwd" type="password" v-model="password" required placeholder="Enter your password" :class="!$v.password.minLength ? 'inputError':''"></b-form-input>
+                <b-form-input id="inputPwd" type="password" v-model="password" required placeholder="Enter your password" @input="$v.password.$touch()" :class="{ inputError: $v.password.$error == true }"></b-form-input>
             </b-form-group>
-             <div class="required" v-if="!$v.password.required">Field is required</div>
-            <div class="error" v-if="!$v.password.minLength">Password must have at least {{$v.password.$params.minLength.min}} characters.</div>
+            <div v-if="$v.password.$dirty">
+                <p class="error" v-if="!$v.password.required">Field is required</p>
+                <p class="error" v-if="!$v.password.minLength">Password must have at least {{$v.password.$params.minLength.min}} characters.</p>
+            </div>
 
             <br><br>
 
@@ -25,7 +30,6 @@
 
 <script>
 import { required, minLength, email} from 'vuelidate/lib/validators'
-// import jwt_decode from "jwt-decode";
 import jwt from 'jsonwebtoken'
 
 
@@ -82,8 +86,12 @@ export default {
                     }                
                 } 
             } 
-            this.email = ""
-            this.password = ""
+            this.resetDatas()  
+        },
+        resetDatas() {      
+            this.email = "";
+            this.password = "";
+            this.$v.$reset();
         }
     }
 }
@@ -93,12 +101,8 @@ export default {
     #form {
         text-align: left;
     }
-    #error, #incomplete {       
+    #error {       
         color: red;
-    }
-    .required {
-        font-style: italic;
-        color: gray;
     }
     .error {
         color: red;

@@ -2,30 +2,50 @@
     <b-form id="form">
         <p id="success" v-if="status === 'success'">Registration successfull</p>
         <p id="failure" v-else-if="status === 'failure'">Registration failed, please try again</p>
-        <!-- <p id="incomplete" v-else-if="status === 'incomplete'">Information incomplete</p> -->
+        
         <p id="exists" v-else-if="status === 'exists'">E-mail already registered</p>
         <p id="exists" v-else-if="status === 'name exists'">Name already taken</p>
         <br> <br>
 
         <b-form-group label="Name:" label-for="inputName">
-            <b-form-input id="inputName" v-model="name" required placeholder="Enter your name" :class="!$v.name.minLength ? 'inputError':''">></b-form-input>
+            <b-form-input id="inputName" v-model="name" required placeholder="Enter your name" @input="$v.name.$touch()" :class="{ inputError: $v.name.$error == true }"></b-form-input>
         </b-form-group>
-        <div class="required" v-if="!$v.name.required">Field is required</div>
-        <div class="error" v-if="!$v.name.minLength">Name must have at least {{$v.name.$params.minLength.min}} letters.</div>
+        <div v-if="$v.name.$dirty">
+            <p class="error" v-if="!$v.name.required">Field is required</p>
+            <p class="error" v-if="!$v.name.minLength">Name must have at least {{$v.name.$params.minLength.min}} letters.</p>
+        </div>
+        
        
         <br><br>
         <b-form-group label="Email:" label-for="inputEmail">
-            <b-form-input id="inputEmail" v-model="email" required placeholder="Enter your email" :class="!$v.email.email ? 'inputError':''"></b-form-input>
+            <b-form-input id="inputEmail" v-model="email" required placeholder="Enter your email" @input="$v.email.$touch()" :class="{ inputError: $v.email.$error == true }"></b-form-input>
         </b-form-group>
-        <div class="required" v-if="!$v.email.required">Field is required</div>
-        <div class="error" v-if="!$v.email.email">Invalid email</div>
+        <div v-if="$v.email.$dirty">
+            <p class="error" v-if="!$v.email.required">Field is required</p>
+            <p class="error" v-if="!$v.email.email">Invalid email</p>
+        </div>
+       
 
         <br><br>
         <b-form-group label="Password:" label-for="inputPassword">
-            <b-form-input id="inputPassword" type="password" v-model="password" required placeholder="Enter your password" :class="!$v.password.minLength ? 'inputError':''"></b-form-input>
+            <b-form-input id="inputPassword" type="password" v-model="password" required placeholder="Enter your password" @input="$v.password.$touch()" :class="{ inputError: $v.password.$error == true }"></b-form-input>
         </b-form-group>
-        <div class="required" v-if="!$v.password.required">Field is required</div>
-        <div class="error" v-if="!$v.password.minLength">Password must have at least {{$v.password.$params.minLength.min}} characters.</div>
+        <div v-if="$v.password.$dirty">
+            <p class="error" v-if="!$v.password.required">Field is required</p>
+            <p class="error" v-if="!$v.password.minLength">Password must have at least {{$v.password.$params.minLength.min}} characters.</p>
+        </div>
+        
+
+        <br><br>
+
+        <b-form-group label="Password Check:" label-for="inputPasswordCheck">
+            <b-form-input id="inputPasswordCheck" type="password" v-model="passwordcheck" required placeholder="Enter your password again" @input="$v.passwordcheck.$touch()" :class="{ inputError: $v.passwordcheck.$error == true, inputSuccess: $v.passwordcheck.$dirty && !$v.passwordcheck.$error }"></b-form-input>
+        </b-form-group>
+        <div v-if="$v.passwordcheck.$dirty">
+            <p class="error" v-if="!$v.password.required">Field is required</p>
+            <p class="error" v-if="!$v.passwordcheck.sameAsPassword">Password must be the same</p>
+        </div>
+        
 
         <br><br>
         <b-button variant="success" @click="signUp">Sign-Up</b-button>
@@ -33,8 +53,7 @@
 </template>
 
 <script>
-import { required, minLength, email} from 'vuelidate/lib/validators'
-// import jwt_decode from "jwt-decode";
+import { required, minLength, email, sameAs} from 'vuelidate/lib/validators'
 import jwt from 'jsonwebtoken'
 
 export default {
@@ -44,6 +63,7 @@ export default {
             name: "",
             email: "",
             password: "",
+            passwordcheck: "",
             status: ""              
         }
     },
@@ -59,6 +79,11 @@ export default {
         password: {
             required,
             minLength: minLength(8)
+        },
+        passwordcheck: {
+            required,
+            minLength: minLength(8),
+            sameAsPassword: sameAs("password")
         }
     },    
     methods: {
@@ -98,10 +123,15 @@ export default {
                         console.log(err);                   
                     }               
                 }  
-            }
-            this.name = ""
-            this.email = ""
-            this.password = ""           
+            }     
+            this.resetDatas()                
+        },
+        resetDatas() {      
+            this.name = "";
+            this.email = "";
+            this.password = "";
+            this.passwordcheck = "";
+            this.$v.$reset();
         }
     }
 }
@@ -114,18 +144,17 @@ export default {
     #success {
         color: green;
     }
-    #failure, #incomplete, #exists {
+    #failure, #exists {
         color: red;
     }   
-    .required {
-        font-style: italic;
-        color: gray;
-    }
     .error {
         color: red;
     }
     .inputError {
-        border: 2px solid red;
+        border: 2px solid red !important;
+    }
+    .inputSuccess {
+        border: 2px solid green !important;
     }
     
 </style>
