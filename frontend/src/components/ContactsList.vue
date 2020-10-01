@@ -66,10 +66,13 @@ export default {
     justify-content: space-between;
     align-items: center;
     border: 2px solid black;
+    margin-bottom: 30px;
+    padding: 10px;
   }
   p {
     width: 50%;
     text-align: center;
+    margin: 0;
   }
   img {
     cursor: pointer;

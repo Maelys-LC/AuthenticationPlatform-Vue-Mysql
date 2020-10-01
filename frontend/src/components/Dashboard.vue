@@ -13,7 +13,7 @@
             </b-tabs>  
 
 
-            <b-button variant="danger" @click="deleteAccount">Delete account</b-button>
+            <b-button id="deleteAccount" variant="danger" @click="deleteAccount">Delete account</b-button>
             <p v-if="status === 'failure'">Something went wrong, please try again</p>       
             
 
@@ -57,5 +57,9 @@ export default {
 <style scoped>
     #dashboard {
         text-align: center;
+    }
+    #deleteAccount {
+        position: absolute;
+        right: 10px;
     }
 </style>
