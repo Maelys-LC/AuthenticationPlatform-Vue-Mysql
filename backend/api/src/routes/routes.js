@@ -4,7 +4,6 @@ const db = require("../database/db.js")
 const mysql = require("mysql2")
 const bcrypt = require("bcrypt")
 const jwt = require('jsonwebtoken');
-const bodyParser = require('body-parser');
 const config = require('../config/config.js')
 
 let getHashedPassword = (password) => {
