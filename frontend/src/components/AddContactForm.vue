@@ -23,7 +23,7 @@
 
         <br><br>
 
-        <b-button variant="success" @click="add">Add</b-button>
+        <b-button id="add" variant="success" @click="add">Add</b-button>
     </b-form>
     
 </template>
@@ -104,6 +104,9 @@ export default {
     }
     .inputError {
         border: 2px solid red !important;
+    }
+    #add {
+        margin-bottom: 80px;
     }
     
 </style>

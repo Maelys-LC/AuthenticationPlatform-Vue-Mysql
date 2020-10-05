@@ -2,11 +2,11 @@
   <div>
     <p v-if="status === 'failure'">Something went wrong, please try again</p>
     <div v-for="element in list" :key="element.name" class="contact">
-      <p>Name: {{element.name}}</p>
-      <p>Email: {{element.email}}</p>
+      <p><span>Name:</span> {{element.name}}</p>
+      <p><span>Email:</span> {{element.email}}</p>
       <img src="../assets/cross.png" alt="delete icon" @click="deleteContact(element.name, element.email, element.user_affiliate)">
     </div>
-    <b-button variant="danger" @click="deleteAllContacts">Delete all contacts</b-button>
+    <b-button id='deleteContacts' variant="danger" @click="deleteAllContacts">Delete all contacts</b-button>
   </div>
 </template>
 
@@ -74,9 +74,47 @@ export default {
     text-align: center;
     margin: 0;
   }
+  span {
+    font-weight: bold;
+  }
   img {
     cursor: pointer;
     width: 3%;
+  }
+  #deleteContacts {
+    margin-bottom: 50px;
+  }
+
+  @media screen and (max-width: 1300px) {
+    .contact {
+      width: 80%;
+    }
+  }
+
+  @media screen and (max-width: 900px) {
+    .contact {
+      flex-direction: column;      
+    }   
+    
+    img {
+      width: 5%;
+      margin-top: 5px;
+    }
+  }
+
+  @media screen and (max-width: 500px) {
+    .contact {      
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    p  {
+      text-align: left;
+    }
+    
+    img {
+      width: 8%;     
+    }
   }
 
 </style>
