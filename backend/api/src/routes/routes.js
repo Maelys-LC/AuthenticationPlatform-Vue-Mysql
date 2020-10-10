@@ -202,7 +202,7 @@ routes.get("/get-contacts/:id", function(req, res) {
 
 
 
-routes.use("/deletingSingleContact", function(req, res, next){
+routes.use("/deleteSingleContact", function(req, res, next){
     let verified = jwt.verify(req.headers.token, config.secret)
     
     if(req.body.user_affiliate === verified.id && Date.now()/1000 <= verified.exp) {
