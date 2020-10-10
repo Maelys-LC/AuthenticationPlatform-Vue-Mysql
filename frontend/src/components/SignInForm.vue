@@ -69,7 +69,7 @@ export default {
 
                         if (result.data.auth) {
                             let token = result.data.token
-                            let decoded = jwt.verify(token, 'limeisbestdriver')                   
+                            let decoded = jwt.decode(token)                   
                             
                             this.$store.dispatch("ADD_TOKEN", token)
                             this.$store.dispatch("CONNECT_USER", decoded)
